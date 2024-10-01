@@ -1,95 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
+"use client"
+import axios from 'axios';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+interface User {
+  id: number;
+  ten_sp: string;
+  gia_sp: string;
+  cap_nhat: string;
+}
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [users, setUsers] = useState<User[]>([]);
+  useEffect(() =>{
+    getUsers();
+  },[])
+  function getUsers(){
+   axios.get('https://hieu.name.vn/demo/public/api/sp')
+   .then(function(response){
+    setUsers(response.data)
+   })
+  }
+  const deleteUser = (id:number) =>{
+    axios.delete(`https://hieu.name.vn/demo/public/api/admin/sp/${id}`)
+    .then(function(response){
+      getUsers();
+    })
+  }
+
+  return (
+    <>
+   <div className="container py-3">
+   <div className="container mt-5">
+    <h2 className="text-center mb-4">User List</h2>
+    <div className="container py-3">
+    <Link href="/add-user"><button className="btn btn-success btn-sm">Thêm</button></Link>
     </div>
+    
+    <table className="table table-bordered table-hover">
+      <thead className="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map((user, key)=>
+          <tr key={key}>
+          <td>{user.id}</td>
+          <td>{user.ten_sp}</td>
+          <td>{user.gia_sp}</td>
+          <td>{user.cap_nhat}</td>
+          <td>
+           <Link href={`/edit/${user.id}`}> <button className="btn btn-primary btn-sm py-2 mx-2">Sửa</button></Link>
+            <button onClick={() => deleteUser(user.id)} className="btn btn-danger btn-sm py-2 mx-2">Xóa</button>
+            <Link href={`/detail/${user.id}`}><button className="btn btn-success btn-sm py-2 mx-2">Chi tiết</button> </Link>
+          </td>
+        </tr>
+        )}
+      
+      </tbody>
+    </table>
+  </div>
+
+   </div>
+   </>
   );
 }
